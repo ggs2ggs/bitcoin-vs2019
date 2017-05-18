@@ -84,6 +84,8 @@ public:
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
+private:
+    CChainParams(); // 引数無しの初期化は認めない. (ダミー宣言. 実装は存在しない)
 protected:
     CChainParams(NetworkType networkType);
 
@@ -104,6 +106,7 @@ protected:
     CCheckpointData checkpointData;
     ChainTxData chainTxData;
 };
+
 
 /**
  * Return the currently selected parameters. This won't change after app

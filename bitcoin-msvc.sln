@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_bitcoin_common", "_bitcoin_common.vcxproj", "{8EFFD767-7623-4556-9A30-36533462915E}"
 EndProject
@@ -14,8 +14,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db_static", "db-4.8.30\build_windows\db_static.vcxproj", "{671539AA-D9A6-4B7B-8044-61B511D6F432}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "sample\sample.vcxproj", "{6AD42D39-92E6-4116-89D2-EE2BAA8ABB03}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_bitcoin", "test_bitcoin\test_bitcoin.vcxproj", "{D943771F-36F4-453F-8A57-3FB8340F9FAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,14 +71,6 @@ Global
 		{6AD42D39-92E6-4116-89D2-EE2BAA8ABB03}.Release|x64.Build.0 = Release|x64
 		{6AD42D39-92E6-4116-89D2-EE2BAA8ABB03}.Release|x86.ActiveCfg = Release|Win32
 		{6AD42D39-92E6-4116-89D2-EE2BAA8ABB03}.Release|x86.Build.0 = Release|Win32
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Debug|x64.ActiveCfg = Debug|x64
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Debug|x64.Build.0 = Debug|x64
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Debug|x86.ActiveCfg = Debug|Win32
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Debug|x86.Build.0 = Debug|Win32
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Release|x64.ActiveCfg = Release|x64
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Release|x64.Build.0 = Release|x64
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Release|x86.ActiveCfg = Release|Win32
-		{D943771F-36F4-453F-8A57-3FB8340F9FAD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

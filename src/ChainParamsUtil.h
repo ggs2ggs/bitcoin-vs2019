@@ -31,12 +31,21 @@ public:
         int32_t nVersion,
         const CAmount& genesisReward
     );
-    static CChainParams* GetParamsOfNetworkType(NetworkType networkType) {
+};
+
+class CChainParamsPool{
+public:
+    static CChainParamsPool* Instance() {
+        static CChainParamsPool theInstance;
+        return &theInstance;
+    }
+public:
+    CChainParams* GetParamsOfNetworkType(NetworkType networkType) {
         return m_paramsOfType[networkType];
     }
-    static void RegisterParamsOfNetworkType(NetworkType networkType, CChainParams* pParams) {
+    void RegisterParamsOfNetworkType(NetworkType networkType, CChainParams* pParams) {
         m_paramsOfType[networkType] = pParams;
     }
 private:
-    static std::map<NetworkType, CChainParams*> m_paramsOfType;
+    std::map<NetworkType, CChainParams*> m_paramsOfType;
 };

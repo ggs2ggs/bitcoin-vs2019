@@ -10,8 +10,6 @@
 #include "util.h"
 #include "utilstrencodings.h"
 
-std::map<NetworkType, CChainParams*> CChainParamsUtil::m_paramsOfType;
-
 CBlock CChainParamsUtil::_CreateGenesisBlockImpl(
     const char* pszTimestamp,
     const CScript& genesisOutputScript,

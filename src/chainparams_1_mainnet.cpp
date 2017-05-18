@@ -120,4 +120,5 @@ public:
         };
     }
 };
-static CMainParams mainParams;
+
+CMainParams g_mainParams;
