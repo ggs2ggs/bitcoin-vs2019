@@ -1,5 +1,5 @@
-﻿// Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,19 +14,12 @@
 #ifndef BITCOIN_BASE58_H
 #define BITCOIN_BASE58_H
 
-#include "chainparams.h"
-#include "key.h"
-#include "pubkey.h"
-#include "script/script.h"
-#include "script/standard.h"
-#include "support/allocators/zeroafterfree.h"
-
 #include <string>
 #include <vector>
 
 /**
  * Encode a byte sequence as a base58-encoded string.
- * pbegin and pend cannot be NULL, unless both are.
+ * pbegin and pend cannot be nullptr, unless both are.
  */
 std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend);
 
@@ -38,7 +31,7 @@ std::string EncodeBase58(const std::vector<unsigned char>& vch);
 /**
  * Decode a base58-encoded string (psz) into a byte vector (vchRet).
  * return true if decoding is successful.
- * psz cannot be NULL.
+ * psz cannot be nullptr.
  */
 bool DecodeBase58(const char* psz, std::vector<unsigned char>& vchRet);
 
@@ -57,60 +50,12 @@ std::string EncodeBase58Check(const std::vector<unsigned char>& vchIn);
  * Decode a base58-encoded string (psz) that includes a checksum into a byte
  * vector (vchRet), return true if decoding is successful
  */
-inline bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet);
+bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet);
 
 /**
  * Decode a base58-encoded string (str) that includes a checksum into a byte
  * vector (vchRet), return true if decoding is successful
  */
-inline bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet);
-
-class base58string;
-class CBitcoinAddress;
-class CKey;
-
-/**
- * Base class for all base58-encoded data
- */
-class CBase58Data{
-public:
-    typedef std::vector<unsigned char, zero_after_free_allocator<unsigned char> > VectorUchar;
-
-protected:
-    //! the version byte(s)
-    std::vector<unsigned char> m_vchVersion;
-
-    //! the actually encoded data
-    VectorUchar m_vchData;
-
-public: // ### 仮.
-    CBase58Data();
-    void SetData(const std::vector<unsigned char> &vchVersionIn, const void* pdata, size_t nSize);
-    void SetData(const std::vector<unsigned char> &vchVersionIn, const unsigned char *pbegin, const unsigned char *pend);
-
-public:
-    bool _SetStringWithVersionBytes(const char* psz, unsigned int nVersionBytes);
-    bool _SetString(const char* psz) {
-        return _SetStringWithVersionBytes(psz, 1);
-    }
-    bool _SetString(const std::string& str);
-    bool SetBase58string(const base58string& str);
-
-    std::string _ToString() const;
-    int CompareTo(const CBase58Data& b58) const;
-
-    bool operator==(const CBase58Data& b58) const { return CompareTo(b58) == 0; }
-    bool operator<=(const CBase58Data& b58) const { return CompareTo(b58) <= 0; }
-    bool operator>=(const CBase58Data& b58) const { return CompareTo(b58) >= 0; }
-    bool operator< (const CBase58Data& b58) const { return CompareTo(b58) <  0; }
-    bool operator> (const CBase58Data& b58) const { return CompareTo(b58) >  0; }
-
-    friend class base58string;
-    friend class CBitcoinAddress;
-    friend class CKey;
-};
-
-#include "base58string.h"
-
+bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet);
 
 #endif // BITCOIN_BASE58_H

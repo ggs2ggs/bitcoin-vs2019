@@ -9,6 +9,7 @@
 #include <limits>
 #include <vector>
 
+
 class scriptnum_error : public std::runtime_error
 {
 public:
@@ -17,16 +18,15 @@ public:
 
 class CScriptNum
 {
-    /**
-    * Numeric opcodes (OP_1ADD, etc) are restricted to operating on 4-byte integers.
-    * The semantics are subtle, though: operands must be in the range [-2^31 +1...2^31 -1],
-    * but results may overflow (and are valid as long as they are not used in a subsequent
-    * numeric operation). CScriptNum enforces those semantics by storing results as
-    * an int64 and allowing out-of-range values to be returned as a vector of bytes but
-    * throwing an exception if arithmetic is done or the result is interpreted as an integer.
-    */
+/**
+ * Numeric opcodes (OP_1ADD, etc) are restricted to operating on 4-byte integers.
+ * The semantics are subtle, though: operands must be in the range [-2^31 +1...2^31 -1],
+ * but results may overflow (and are valid as long as they are not used in a subsequent
+ * numeric operation). CScriptNum enforces those semantics by storing results as
+ * an int64 and allowing out-of-range values to be returned as a vector of bytes but
+ * throwing an exception if arithmetic is done or the result is interpreted as an integer.
+ */
 public:
-
     explicit CScriptNum(const int64_t& n)
     {
         m_value = n;
@@ -34,8 +34,7 @@ public:
 
     static const size_t nDefaultMaxNumSize = 4;
 
-    explicit CScriptNum(const std::vector<unsigned char>& vch, bool fRequireMinimal,
-        const size_t nMaxNumSize = nDefaultMaxNumSize)
+    explicit CScriptNum(const std::vector<unsigned char>& vch, bool fRequireMinimal, const size_t nMaxNumSize = nDefaultMaxNumSize)
     {
         if (vch.size() > nMaxNumSize) {
             throw scriptnum_error("script number overflow");
@@ -64,31 +63,31 @@ public:
     inline bool operator==(const int64_t& rhs) const { return m_value == rhs; }
     inline bool operator!=(const int64_t& rhs) const { return m_value != rhs; }
     inline bool operator<=(const int64_t& rhs) const { return m_value <= rhs; }
-    inline bool operator< (const int64_t& rhs) const { return m_value <  rhs; }
+    inline bool operator<(const int64_t& rhs) const { return m_value < rhs; }
     inline bool operator>=(const int64_t& rhs) const { return m_value >= rhs; }
-    inline bool operator> (const int64_t& rhs) const { return m_value >  rhs; }
+    inline bool operator>(const int64_t& rhs) const { return m_value > rhs; }
 
     inline bool operator==(const CScriptNum& rhs) const { return operator==(rhs.m_value); }
     inline bool operator!=(const CScriptNum& rhs) const { return operator!=(rhs.m_value); }
     inline bool operator<=(const CScriptNum& rhs) const { return operator<=(rhs.m_value); }
-    inline bool operator< (const CScriptNum& rhs) const { return operator< (rhs.m_value); }
+    inline bool operator<(const CScriptNum& rhs) const { return operator<(rhs.m_value); }
     inline bool operator>=(const CScriptNum& rhs) const { return operator>=(rhs.m_value); }
-    inline bool operator> (const CScriptNum& rhs) const { return operator> (rhs.m_value); }
+    inline bool operator>(const CScriptNum& rhs) const { return operator>(rhs.m_value); }
 
-    inline CScriptNum operator+(const int64_t& rhs)    const { return CScriptNum(m_value + rhs); }
-    inline CScriptNum operator-(const int64_t& rhs)    const { return CScriptNum(m_value - rhs); }
+    inline CScriptNum operator+(const int64_t& rhs) const { return CScriptNum(m_value + rhs); }
+    inline CScriptNum operator-(const int64_t& rhs) const { return CScriptNum(m_value - rhs); }
     inline CScriptNum operator+(const CScriptNum& rhs) const { return operator+(rhs.m_value); }
     inline CScriptNum operator-(const CScriptNum& rhs) const { return operator-(rhs.m_value); }
 
     inline CScriptNum& operator+=(const CScriptNum& rhs) { return operator+=(rhs.m_value); }
     inline CScriptNum& operator-=(const CScriptNum& rhs) { return operator-=(rhs.m_value); }
 
-    inline CScriptNum operator&(const int64_t& rhs)    const { return CScriptNum(m_value & rhs); }
+    inline CScriptNum operator&(const int64_t& rhs) const { return CScriptNum(m_value & rhs); }
     inline CScriptNum operator&(const CScriptNum& rhs) const { return operator&(rhs.m_value); }
 
     inline CScriptNum& operator&=(const CScriptNum& rhs) { return operator&=(rhs.m_value); }
 
-    inline CScriptNum operator-()                         const
+    inline CScriptNum operator-() const
     {
         assert(m_value != std::numeric_limits<int64_t>::min());
         return CScriptNum(-m_value);
@@ -103,7 +102,7 @@ public:
     inline CScriptNum& operator+=(const int64_t& rhs)
     {
         assert(rhs == 0 || (rhs > 0 && m_value <= std::numeric_limits<int64_t>::max() - rhs) ||
-            (rhs < 0 && m_value >= std::numeric_limits<int64_t>::min() - rhs));
+               (rhs < 0 && m_value >= std::numeric_limits<int64_t>::min() - rhs));
         m_value += rhs;
         return *this;
     }
@@ -111,7 +110,7 @@ public:
     inline CScriptNum& operator-=(const int64_t& rhs)
     {
         assert(rhs == 0 || (rhs > 0 && m_value >= std::numeric_limits<int64_t>::min() + rhs) ||
-            (rhs < 0 && m_value <= std::numeric_limits<int64_t>::max() + rhs));
+               (rhs < 0 && m_value <= std::numeric_limits<int64_t>::max() + rhs));
         m_value -= rhs;
         return *this;
     }
@@ -122,14 +121,13 @@ public:
         return *this;
     }
 
-    // #### 割と無理やり変換している.
     int getint() const
     {
         if (m_value > std::numeric_limits<int>::max())
             return std::numeric_limits<int>::max();
         else if (m_value < std::numeric_limits<int>::min())
             return std::numeric_limits<int>::min();
-        return (int)m_value;
+        return m_value;
     }
 
     std::vector<unsigned char> getvch() const
@@ -146,8 +144,7 @@ public:
         const bool neg = value < 0;
         uint64_t absvalue = neg ? -value : value;
 
-        while (absvalue)
-        {
+        while (absvalue) {
             result.push_back(absvalue & 0xff);
             absvalue >>= 8;
         }

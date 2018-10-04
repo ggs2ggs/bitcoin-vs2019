@@ -5,7 +5,9 @@
 #pragma once
 
 #include "base58.h"
+#include "base58string.h"
 class CTxDestination;
+class CChainParams;
 
 /** base58-encoded Bitcoin addresses.
 * Public-key-hash-addresses have version 0 (or 111 testnet).
@@ -14,23 +16,31 @@ class CTxDestination;
 * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
 */
 // ※ CKeyID は排除。CKeyID 側に処理は移行済み.
-class CBitcoinAddress {
+class CBitcoinAddress
+{
 public:
     // bool Set(const CKeyID &id);
     bool IsValid() const;
-    bool IsValid(const CChainParams &params) const;
+    bool IsValid(const CChainParams& params) const;
 
     CBitcoinAddress() {}
-    CBitcoinAddress(const base58string& strAddress) { m_data.SetBase58string(strAddress); }
+    CBitcoinAddress(const base58string& strAddress)
+    {
+        m_addressString = strAddress;
+    }
 
     CTxDestination Get() const;
-    bool GetKeyID(CKeyID &keyID) const;
+    // bool GetKeyID(CKeyID& keyID) const;
     bool IsScript() const;
 
-    bool operator <  (const CBitcoinAddress& rhs) const { return this->m_data <  rhs.m_data; }
-    bool operator == (const CBitcoinAddress& rhs) const { return this->m_data == rhs.m_data; }
+    bool operator<(const CBitcoinAddress& rhs) const { return this->m_addressString < rhs.m_addressString; }
+    bool operator==(const CBitcoinAddress& rhs) const { return this->m_addressString == rhs.m_addressString; }
 
-    bool SetBase58string(const base58string& str) { return m_data.SetBase58string(str) && IsValid(); }
+    bool SetBase58string(const base58string& str)
+    {
+        m_addressString = str;
+        return IsValid();
+    }
 
 private:
     // CBitcoinAddress(const CScriptID &dest); // { Set(dest); }
@@ -43,5 +53,5 @@ public:
     friend class CTxDestination;
 
 private:
-    CBase58Data m_data;
+    base58string m_addressString;
 };

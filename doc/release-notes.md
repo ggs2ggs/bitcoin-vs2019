@@ -3,12 +3,12 @@ release-notes at release time)
 
 Bitcoin Core version *version* is now available from:
 
-  <https://bitcoin.org/bin/bitcoin-core-*version*/>
+  <https://bitcoincore.org/bin/bitcoin-core-*version*/>
 
 This is a new major version release, including new features, various bugfixes
 and performance improvements, as well as updated translations.
 
-Please report bugs using the issue tracker at github:
+Please report bugs using the issue tracker at GitHub:
 
   <https://github.com/bitcoin/bitcoin/issues>
 
@@ -16,133 +16,141 @@ To receive security and update notifications, please subscribe to:
 
   <https://bitcoincore.org/en/list/announcements/join/>
 
+How to Upgrade
+==============
+
+If you are running an older version, shut it down. Wait until it has completely
+shut down (which might take a few minutes for older versions), then run the
+installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on Mac)
+or `bitcoind`/`bitcoin-qt` (on Linux).
+
+The first time you run version 0.15.0, your chainstate database will be converted to a
+new format, which will take anywhere from a few minutes to half an hour,
+depending on the speed of your machine.
+
+Note that the block database format also changed in version 0.8.0 and there is no
+automatic upgrade code from before version 0.8 to version 0.15.0. Upgrading
+directly from 0.7.x and earlier without redownloading the blockchain is not supported.
+However, as usual, old wallet versions are still supported.
+
+Downgrading warning
+-------------------
+
+The chainstate database for this release is not compatible with previous
+releases, so if you run 0.15 and then decide to switch back to any
+older version, you will need to run the old release with the `-reindex-chainstate`
+option to rebuild the chainstate data structures in the old format.
+
+If your node has pruning enabled, this will entail re-downloading and
+processing the entire blockchain.
+
 Compatibility
 ==============
 
 Bitcoin Core is extensively tested on multiple operating systems using
-the Linux kernel, macOS 10.8+, and Windows Vista and later.
-
-Microsoft ended support for Windows XP on [April 8th, 2014](https://www.microsoft.com/en-us/WindowsForBusiness/end-of-xp-support).
-No attempt is made to prevent installing or running the software on Windows XP, you
-can still do so at your own risk but be aware that there are known instabilities.
-Please do not report issues about Windows XP to the issue tracker.
+the Linux kernel, macOS 10.10+, and Windows 7 and newer (Windows XP is not supported).
 
 Bitcoin Core should also work on most other Unix-like systems but is not
 frequently tested on them.
 
+From 0.17.0 onwards macOS <10.10 is no longer supported. 0.17.0 is built using Qt 5.9.x, which doesn't
+support versions of macOS older than 10.10.
+
 Notable changes
 ===============
 
+GUI changes
+-----------
+
+- Block storage can be limited under Preferences, in the Main tab. Undoing this setting requires downloading the full blockchain again. This mode is incompatible with -txindex and -rescan.
+
+RPC changes
+------------
+
+### Low-level changes
+
+- The `createrawtransaction` RPC will now accept an array or dictionary (kept for compatibility) for the `outputs` parameter. This means the order of transaction outputs can be specified by the client.
+- The `fundrawtransaction` RPC will reject the previously deprecated `reserveChangeKey` option.
+- `sendmany` now shuffles outputs to improve privacy, so any previously expected behavior with regards to output ordering can no longer be relied upon.
+- The new RPC `testmempoolaccept` can be used to test acceptance of a transaction to the mempool without adding it.
+- JSON transaction decomposition now includes a `weight` field which provides
+  the transaction's exact weight. This is included in REST /rest/tx/ and
+  /rest/block/ endpoints when in json mode. This is also included in `getblock`
+  (with verbosity=2), `listsinceblock`, `listtransactions`, and
+  `getrawtransaction` RPC commands.
+- New `fees` field introduced in `getrawmempool`, `getmempoolancestors`, `getmempooldescendants` and
+   `getmempoolentry` when verbosity is set to `true` with sub-fields `ancestor`, `base`, `modified`
+   and `descendant` denominated in BTC. This new field deprecates previous fee fields, such as
+   `fee`, `modifiedfee`, `ancestorfee` and `descendantfee`.
+- The new RPC `getzmqnotifications` returns information about active ZMQ
+  notifications.
+
+External wallet files
+---------------------
+
+The `-wallet=<path>` option now accepts full paths instead of requiring wallets
+to be located in the -walletdir directory.
+
+Newly created wallet format
+---------------------------
+
+If `-wallet=<path>` is specified with a path that does not exist, it will now
+create a wallet directory at the specified location (containing a wallet.dat
+data file, a db.log file, and database/log.?????????? files) instead of just
+creating a data file at the path and storing log files in the parent
+directory. This should make backing up wallets more straightforward than
+before because the specified wallet path can just be directly archived without
+having to look in the parent directory for transaction log files.
+
+For backwards compatibility, wallet paths that are names of existing data files
+in the `-walletdir` directory will continue to be accepted and interpreted the
+same as before.
+
 Low-level RPC changes
-----------------------
+---------------------
 
-- `importprunedfunds` only accepts two required arguments. Some versions accept
-  an optional third arg, which was always ignored. Make sure to never pass more
-  than two arguments.
+- When bitcoin is not started with any `-wallet=<path>` options, the name of
+  the default wallet returned by `getwalletinfo` and `listwallets` RPCs is
+  now the empty string `""` instead of `"wallet.dat"`. If bitcoin is started
+  with any `-wallet=<path>` options, there is no change in behavior, and the
+  name of any wallet is just its `<path>` string.
+- Passing an empty string (`""`) as the `address_type` parameter to
+  `getnewaddress`, `getrawchangeaddress`, `addmultisigaddress`,
+  `fundrawtransaction` RPCs is now an error. Previously, this would fall back
+  to using the default address type. It is still possible to pass null or leave
+  the parameter unset to use the default address type.
 
-Fee Estimation Changes
-----------------------
+- Bare multisig outputs to our keys are no longer automatically treated as
+  incoming payments. As this feature was only available for multisig outputs for
+  which you had all private keys in your wallet, there was generally no use for
+  them compared to single-key schemes. Furthermore, no address format for such
+  outputs is defined, and wallet software can't easily send to it. These outputs
+  will no longer show up in `listtransactions`, `listunspent`, or contribute to
+  your balance, unless they are explicitly watched (using `importaddress` or
+  `importmulti` with hex script argument). `signrawtransaction*` also still
+  works for them.
 
-- Since 0.13.2 fee estimation for a confirmation target of 1 block has been
-  disabled. This is only a minor behavior change as there was often insufficient
-  data for this target anyway. `estimatefee 1` will now always return -1 and
-  `estimatesmartfee 1` will start searching at a target of 2.
+### Logging
 
-- The default target for fee estimation is changed to 6 blocks in both the GUI
-  (previously 25) and for RPC calls (previously 2).
+- The log timestamp format is now ISO 8601 (e.g. "2018-02-28T12:34:56Z").
 
-Removal of Priority Estimation
--------------------------------
+- When running bitcoind with `-debug` but without `-daemon`, logging to stdout
+  is now the default behavior. Setting `-printtoconsole=1` no longer implicitly
+  disables logging to debug.log. Instead, logging to file can be explicitly disabled
+  by setting `-debuglogfile=0`.
 
-- Estimation of "priority" needed for a transaction to be included within a target
-  number of blocks has been removed.  The rpc calls are deprecated and will either
-  return -1 or 1e24 appropriately. The format for `fee_estimates.dat` has also
-  changed to no longer save these priority estimates. It will automatically be
-  converted to the new format which is not readable by prior versions of the
-  software.
+Miner block size removed
+------------------------
 
-- The concept of "priority" (coin age) transactions is planned to be removed in
-  the next major version. To prepare for this, the default for the rate limit of
-  priority transactions (`-limitfreerelay`) has been set to `0` kB/minute. This
-  is not to be confused with the `prioritisetransaction` RPC which will remain
-  supported for adding fee deltas to transactions.
+The `-blockmaxsize` option for miners to limit their blocks' sizes was
+deprecated in V0.15.1, and has now been removed. Miners should use the
+`-blockmaxweight` option if they want to limit the weight of their blocks'
+weights.
 
-P2P connection management
---------------------------
+Python Support
+--------------
 
-- Peers manually added through the addnode option or addnode RPC now have their own
-  limit of eight connections which does not compete with other inbound or outbound
-  connection usage and is not subject to the maxconnections limitation.
-
-- New connections to manually added peers are much faster.
-
-Introduction of assumed-valid blocks
--------------------------------------
-
-- A significant portion of the initial block download time is spent verifying
-  scripts/signatures.  Although the verification must pass to ensure the security
-  of the system, no other result from this verification is needed: If the node
-  knew the history of a given block were valid it could skip checking scripts
-  for its ancestors.
-
-- A new configuration option 'assumevalid' is provided to express this knowledge
-  to the software.  Unlike the 'checkpoints' in the past this setting does not
-  force the use of a particular chain: chains that are consistent with it are
-  processed quicker, but other chains are still accepted if they'd otherwise
-  be chosen as best. Also unlike 'checkpoints' the user can configure which
-  block history is assumed true, this means that even outdated software can
-  sync more quickly if the setting is updated by the user.
-
-- Because the validity of a chain history is a simple objective fact it is much
-  easier to review this setting.  As a result the software ships with a default
-  value adjusted to match the current chain shortly before release.  The use
-  of this default value can be disabled by setting -assumevalid=0
-
-0.14.0 Change log
-=================
-
-Detailed release notes follow. This overview includes changes that affect
-behavior, not code moves, refactors and string updates. For convenience in locating
-the code changes and accompanying discussion, both the pull request and
-git merge commit are mentioned.
-
-### RPC and REST
-
-UTXO set query (`GET /rest/getutxos/<checkmempool>/<txid>-<n>/<txid>-<n>/.../<txid>-<n>.<bin|hex|json>`) responses
-were changed to return status code HTTP_BAD_REQUEST (400) instead of HTTP_INTERNAL_SERVER_ERROR (500) when requests
-contain invalid parameters.
-
-The first boolean argument to `getaddednodeinfo` has been removed. This is an incompatible change.
-
-Call "getmininginfo" loses the "testnet" field in favor of the more generic "chain" (which has been present for years).
-
-### Configuration and command-line options
-
-### Block and transaction handling
-
-### P2P protocol and network code
-
-### Validation
-
-### Build system
-
-### Wallet
-
-0.14.0 Fundrawtransaction change address reuse
-==============================================
-
-Before 0.14, `fundrawtransaction` was by default wallet stateless. In almost all cases `fundrawtransaction` does add a change-output to the outputs of the funded transaction. Before 0.14, the used keypool key was never marked as change-address key and directly returned to the keypool (leading to address reuse).
-Before 0.14, calling `getnewaddress` directly after `fundrawtransaction` did generate the same address as the change-output address.
-
-Since 0.14, fundrawtransaction does reserve the change-output-key from the keypool by default (optional by setting  `reserveChangeKey`, default = `true`)
-
-Users should also consider using `getrawchangeaddress()` in conjunction with `fundrawtransaction`'s `changeAddress` option.
-
-### GUI
-
-### Tests
-
-### Miscellaneous
+Support for Python 2 has been discontinued for all test files and tools.
 
 Credits
 =======

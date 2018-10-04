@@ -1,22 +1,35 @@
-// Copyright (c) 2014-2016 The Bitcoin Core developers
+// Copyright (c) 2014-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "base58.h"
+#include <base58.h>
 
-#include "hash.h"
-#include "uint256.h"
+#include <hash.h>
+#include <uint256.h>
 
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
-#include <vector>
-#include <string>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
 
 /** All alphanumeric characters except for "0", "I", "O", and "l" */
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+static const int8_t mapBase58[256] = {
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1, 0, 1, 2, 3, 4, 5, 6,  7, 8,-1,-1,-1,-1,-1,-1,
+    -1, 9,10,11,12,13,14,15, 16,-1,17,18,19,20,21,-1,
+    22,23,24,25,26,27,28,29, 30,31,32,-1,-1,-1,-1,-1,
+    -1,33,34,35,36,37,38,39, 40,41,42,43,-1,44,45,46,
+    47,48,49,50,51,52,53,54, 55,56,57,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+    -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
+};
 
 bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch)
 {
@@ -34,13 +47,12 @@ bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch)
     int size = strlen(psz) * 733 /1000 + 1; // log(58) / log(256), rounded up.
     std::vector<unsigned char> b256(size);
     // Process the characters.
+    static_assert(sizeof(mapBase58)/sizeof(mapBase58[0]) == 256, "mapBase58.size() should be 256"); // guarantee not out of range
     while (*psz && !isspace(*psz)) {
         // Decode base58 character
-        const char* ch = strchr(pszBase58, *psz);
-        if (ch == NULL)
+        int carry = mapBase58[(uint8_t)*psz];
+        if (carry == -1)  // Invalid b58 character
             return false;
-        // Apply "b256 = b256 * 58 + ch".
-        int carry = ch - pszBase58;
         int i = 0;
         for (
             std::vector<unsigned char>::reverse_iterator it = b256.rbegin();
@@ -114,7 +126,7 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
 
 std::string EncodeBase58(const std::vector<unsigned char>& vch)
 {
-    return EncodeBase58(&vch[0], &vch[0] + vch.size());
+    return EncodeBase58(vch.data(), vch.data() + vch.size());
 }
 
 bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vchRet)
@@ -138,9 +150,9 @@ bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet)
         vchRet.clear();
         return false;
     }
-    // re-calculate the checksum, insure it matches the included 4-byte checksum
+    // re-calculate the checksum, ensure it matches the included 4-byte checksum
     uint256 hash = Hash(vchRet.begin(), vchRet.end() - 4);
-    if (memcmp(&hash, &vchRet.end()[-4], 4) != 0) {
+    if (memcmp(&hash, &vchRet[vchRet.size() - 4], 4) != 0) {
         vchRet.clear();
         return false;
     }
@@ -152,83 +164,3 @@ bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRe
 {
     return DecodeBase58Check(str.c_str(), vchRet);
 }
-
-CBase58Data::CBase58Data()
-{
-    m_vchVersion.clear();
-    m_vchData.clear();
-}
-
-void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize)
-{
-    m_vchVersion = vchVersionIn;
-    m_vchData.resize(nSize);
-    if (!m_vchData.empty())
-        memcpy(&m_vchData[0], pdata, nSize);
-}
-
-void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const unsigned char* pbegin, const unsigned char* pend)
-{
-    SetData(vchVersionIn, (void*)pbegin, pend - pbegin);
-}
-
-bool CBase58Data::_SetStringWithVersionBytes(
-    const char*     psz,
-    unsigned int    nVersionBytes // default 1
-)
-{
-    // まずバージョン関係なくデコードを行う.
-    std::vector<unsigned char> vchTemp;
-    bool rc58 = DecodeBase58Check(psz, vchTemp);
-
-    // デコードに失敗した場合、もしくは、展開されたデータサイズがバージョン値 (default 1) より小さかったら.
-    if ((!rc58) || (vchTemp.size() < nVersionBytes)) {
-        // エラーとみなし、データをクリアし、失敗結果を返す.
-        m_vchData.clear();
-        m_vchVersion.clear();
-        return false;
-    }
-
-    // バージョン値の適用.
-    m_vchVersion.assign(vchTemp.begin(), vchTemp.begin() + nVersionBytes);
-
-    // ※展開データサイズからバージョン値 (default 1) を引いた値はこの時点で 0 以上になっているはず.
-    m_vchData.resize(vchTemp.size() - nVersionBytes);
-    if (!m_vchData.empty()) // サイズが 0 でなければ
-        memcpy(&m_vchData[0], &vchTemp[nVersionBytes], m_vchData.size());
-
-    // テンポラリデータは完全にクリアする.
-    memory_cleanse(&vchTemp[0], vchTemp.size());
-    return true;
-}
-
-bool CBase58Data::_SetString(const std::string& str)
-{
-    return _SetString(str.c_str());
-}
-
-bool CBase58Data::SetBase58string(const base58string& str)
-{
-    return _SetString(str.c_str());
-}
-
-std::string CBase58Data::_ToString() const
-{
-    std::vector<unsigned char> vch = m_vchVersion;
-    vch.insert(vch.end(), m_vchData.begin(), m_vchData.end());
-    return EncodeBase58Check(vch);
-}
-
-int CBase58Data::CompareTo(const CBase58Data& b58) const
-{
-    if (m_vchVersion < b58.m_vchVersion)
-        return -1;
-    if (m_vchVersion > b58.m_vchVersion)
-        return 1;
-    if (m_vchData < b58.m_vchData)
-        return -1;
-    if (m_vchData > b58.m_vchData)
-        return 1;
-    return 0;
-}
-

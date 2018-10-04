@@ -1,9 +1,9 @@
-Bitcoin Core 0.13.99
-=====================
+Bitcoin Core
+=============
 
 Setup
 ---------------------
-Bitcoin Core is the original Bitcoin client and it builds the backbone of the network. However, it downloads and stores the entire history of Bitcoin transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
+Bitcoin Core is the original Bitcoin client and it builds the backbone of the network. It downloads and, by default, stores the entire history of Bitcoin transactions (which is currently more than 100 GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
 To download Bitcoin Core, visit [bitcoincore.org](https://bitcoincore.org/en/releases/).
 
@@ -22,7 +22,7 @@ Unpack the files into a directory and run:
 
 Unpack the files into a directory, and then run bitcoin-qt.exe.
 
-### OS X
+### macOS
 
 Drag Bitcoin-Core to your applications folder, and then run Bitcoin-Core.
 
@@ -37,10 +37,12 @@ Building
 ---------------------
 The following are developer notes on how to build Bitcoin on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
 
-- [OS X Build Notes](build-osx.md)
+- [Dependencies](dependencies.md)
+- [macOS Build Notes](build-osx.md)
 - [Unix Build Notes](build-unix.md)
 - [Windows Build Notes](build-windows.md)
 - [OpenBSD Build Notes](build-openbsd.md)
+- [NetBSD Build Notes](build-netbsd.md)
 - [Gitian Building Guide](gitian-building.md)
 
 Development

@@ -10,6 +10,7 @@
 class base58string {
 public:
     base58string() {}
+    /*
     explicit base58string(const std::string& str, unsigned int nVersionBytes = 1) {
         CBase58Data data;
         data._SetStringWithVersionBytes(str.c_str(), nVersionBytes);
@@ -23,6 +24,7 @@ public:
 
     void SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize)
     {
+        EncodeBase58(vchVersionIn, pdata, nSize);
         CBase58Data data;
         data.SetData(vchVersionIn, pdata, nSize);
         m_string = data._ToString();
@@ -34,7 +36,7 @@ public:
         data.SetData(vchVersionIn, pbegin, pend);
         m_string = data._ToString();
     }
-
+    */
     const char* c_str() const { return m_string.c_str(); }
     size_t length() const { return m_string.length(); }
 

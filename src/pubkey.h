@@ -1,29 +1,18 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2016 The Bitcoin Core developers
+// Copyright (c) 2009-2017 The Bitcoin Core developers
+// Copyright (c) 2017 The Zcash developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_PUBKEY_H
 #define BITCOIN_PUBKEY_H
 
-#include "hash.h"
-#include "serialize.h"
-#include "uint256.h"
+#include <hash.h>
+#include <serialize.h>
+#include <uint256.h>
 
 #include <stdexcept>
 #include <vector>
-
-class base58string;
-
-/**
- * secp256k1:
- * const unsigned int PRIVATE_KEY_SIZE = 279;
- * const unsigned int PUBLIC_KEY_SIZE  = 65;
- * const unsigned int SIGNATURE_SIZE   = 72;
- *
- * see www.keylength.com
- * script supports up to 75 for single byte push
- */
 
 const unsigned int BIP32_EXTKEY_SIZE = 74;
 
@@ -32,10 +21,7 @@ class CKeyID : public uint160
 {
 public:
     CKeyID() : uint160() {}
-    CKeyID(const uint160& in) : uint160(in) {}
-
-public:
-    base58string GetBase58addressWithNetworkPubkeyPrefix() const;
+    explicit CKeyID(const uint160& in) : uint160(in) {}
 };
 
 typedef uint256 ChainCode;
@@ -43,31 +29,51 @@ typedef uint256 ChainCode;
 /** An encapsulated public key. */
 class CPubKey
 {
-private:
+public:
+    /**
+     * secp256k1:
+     */
+    static constexpr unsigned int PUBLIC_KEY_SIZE = 65;
+    static constexpr unsigned int COMPRESSED_PUBLIC_KEY_SIZE = 33;
+    static constexpr unsigned int SIGNATURE_SIZE = 72;
+    static constexpr unsigned int COMPACT_SIGNATURE_SIZE = 65;
+    /**
+     * see www.keylength.com
+     * script supports up to 75 for single byte push
+     */
+    static_assert(
+        PUBLIC_KEY_SIZE >= COMPRESSED_PUBLIC_KEY_SIZE,
+        "COMPRESSED_PUBLIC_KEY_SIZE is larger than PUBLIC_KEY_SIZE");
 
+private:
     /**
      * Just store the serialized data.
      * Its length can very cheaply be computed from the first byte.
      */
-    unsigned char m_vch[65];
+    unsigned char vch[PUBLIC_KEY_SIZE];
 
     //! Compute the length of a pubkey with a given first byte.
     unsigned int static GetLen(unsigned char chHeader)
     {
         if (chHeader == 2 || chHeader == 3)
-            return 33;
+            return COMPRESSED_PUBLIC_KEY_SIZE;
         if (chHeader == 4 || chHeader == 6 || chHeader == 7)
-            return 65;
+            return PUBLIC_KEY_SIZE;
         return 0;
     }
 
     //! Set this key data to be invalid
     void Invalidate()
     {
-        m_vch[0] = 0xFF;
+        vch[0] = 0xFF;
     }
 
 public:
+    bool static ValidSize(const std::vector<unsigned char>& vch)
+    {
+        return vch.size() > 0 && GetLen(vch[0]) == vch.size();
+    }
+
     //! Construct an invalid public key.
     CPubKey()
     {
@@ -80,7 +86,7 @@ public:
     {
         int len = pend == pbegin ? 0 : GetLen(pbegin[0]);
         if (len && len == (pend - pbegin))
-            memcpy(m_vch, (unsigned char*)&pbegin[0], len);
+            memcpy(vch, (unsigned char*)&pbegin[0], len);
         else
             Invalidate();
     }
@@ -93,22 +99,23 @@ public:
     }
 
     //! Construct a public key from a byte vector.
-    CPubKey(const std::vector<unsigned char>& _vch)
+    explicit CPubKey(const std::vector<unsigned char>& _vch)
     {
         Set(_vch.begin(), _vch.end());
     }
 
     //! Simple read-only vector-like interface to the pubkey data.
-    unsigned int size() const { return GetLen(m_vch[0]); }
-    const unsigned char* begin() const { return m_vch; }
-    const unsigned char* end() const { return m_vch + size(); }
-    const unsigned char& operator[](unsigned int pos) const { return m_vch[pos]; }
+    unsigned int size() const { return GetLen(vch[0]); }
+    const unsigned char* data() const { return vch; }
+    const unsigned char* begin() const { return vch; }
+    const unsigned char* end() const { return vch + size(); }
+    const unsigned char& operator[](unsigned int pos) const { return vch[pos]; }
 
     //! Comparator implementation.
     friend bool operator==(const CPubKey& a, const CPubKey& b)
     {
-        return a.m_vch[0] == b.m_vch[0] &&
-               memcmp(a.m_vch, b.m_vch, a.size()) == 0;
+        return a.vch[0] == b.vch[0] &&
+               memcmp(a.vch, b.vch, a.size()) == 0;
     }
     friend bool operator!=(const CPubKey& a, const CPubKey& b)
     {
@@ -116,8 +123,8 @@ public:
     }
     friend bool operator<(const CPubKey& a, const CPubKey& b)
     {
-        return a.m_vch[0] < b.m_vch[0] ||
-               (a.m_vch[0] == b.m_vch[0] && memcmp(a.m_vch, b.m_vch, a.size()) < 0);
+        return a.vch[0] < b.vch[0] ||
+               (a.vch[0] == b.vch[0] && memcmp(a.vch, b.vch, a.size()) < 0);
     }
 
     //! Implement serialization, as if this was a byte vector.
@@ -126,14 +133,14 @@ public:
     {
         unsigned int len = size();
         ::WriteCompactSize(s, len);
-        s.write((char*)m_vch, len);
+        s.write((char*)vch, len);
     }
     template <typename Stream>
     void Unserialize(Stream& s)
     {
-        unsigned int len = (unsigned int)::ReadCompactSize(s);
-        if (len <= 65) {
-            s.read((char*)m_vch, len);
+        unsigned int len = ::ReadCompactSize(s);
+        if (len <= PUBLIC_KEY_SIZE) {
+            s.read((char*)vch, len);
         } else {
             // invalid pubkey, skip available data
             char dummy;
@@ -146,13 +153,13 @@ public:
     //! Get the KeyID of this public key (hash of its serialization)
     CKeyID GetID() const
     {
-        return CKeyID(Hash160(m_vch, m_vch + size()));
+        return CKeyID(Hash160(vch, vch + size()));
     }
 
     //! Get the 256-bit hash of this public key.
-    uint256 GetPublicKeyHash() const
+    uint256 GetHash() const
     {
-        return Hash(m_vch, m_vch + size());
+        return Hash(vch, vch + size());
     }
 
     /*
@@ -171,7 +178,7 @@ public:
     //! Check whether this is a compressed public key.
     bool IsCompressed() const
     {
-        return size() == 33;
+        return size() == COMPRESSED_PUBLIC_KEY_SIZE;
     }
 
     /**
@@ -192,7 +199,7 @@ public:
     bool Decompress();
 
     //! Derive BIP32 child pubkey.
-    bool Derive(CPubKey& pubkeyChild, ChainCode &ccChild, unsigned int nChild, const ChainCode& cc) const;
+    bool Derive(CPubKey& pubkeyChild, ChainCode& ccChild, unsigned int nChild, const ChainCode& cc) const;
 };
 
 /** Users of this module must hold an ECCVerifyHandle. The constructor and
