@@ -444,7 +444,6 @@
     <Import Project="packages\leveldb-vc140.1.16.0.5\build\native\leveldb-vc140.targets" Condition="Exists('packages\leveldb-vc140.1.16.0.5\build\native\leveldb-vc140.targets')" />
     <Import Project="packages\miniupnpc-vc140.2.0.0.1\build\native\miniupnpc-vc140.targets" Condition="Exists('packages\miniupnpc-vc140.2.0.0.1\build\native\miniupnpc-vc140.targets')" />
     <Import Project="packages\openssl-vc141.1.1.0\build\native\openssl-vc141.targets" Condition="Exists('packages\openssl-vc141.1.1.0\build\native\openssl-vc141.targets')" />
-    <Import Project="packages\secp256k1-vc141.0.1.0.15\build\native\secp256k1-vc141.targets" Condition="Exists('packages\secp256k1-vc141.0.1.0.15\build\native\secp256k1-vc141.targets')" />
     <Import Project="packages\libzmq-vc141.4.2.2\build\native\libzmq-vc141.targets" Condition="Exists('packages\libzmq-vc141.4.2.2\build\native\libzmq-vc141.targets')" />
     <Import Project="packages\boost.1.71.0.0\build\boost.targets" Condition="Exists('packages\boost.1.71.0.0\build\boost.targets')" />
     <Import Project="packages\boost_atomic-vc142.1.71.0.0\build\boost_atomic-vc142.targets" Condition="Exists('packages\boost_atomic-vc142.1.71.0.0\build\boost_atomic-vc142.targets')" />
@@ -488,6 +487,7 @@
     <Import Project="packages\boost_wserialization-vc142.1.71.0.0\build\boost_wserialization-vc142.targets" Condition="Exists('packages\boost_wserialization-vc142.1.71.0.0\build\boost_wserialization-vc142.targets')" />
     <Import Project="packages\boost_zlib-vc142.1.71.0.0\build\boost_zlib-vc142.targets" Condition="Exists('packages\boost_zlib-vc142.1.71.0.0\build\boost_zlib-vc142.targets')" />
     <Import Project="packages\boost-vc142.1.71.0.0\build\boost-vc142.targets" Condition="Exists('packages\boost-vc142.1.71.0.0\build\boost-vc142.targets')" />
+    <Import Project="packages\secp256k1-vc142.0.1.0.15\build\native\secp256k1-vc142.targets" Condition="Exists('packages\secp256k1-vc142.0.1.0.15\build\native\secp256k1-vc142.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -499,7 +499,6 @@
     <Error Condition="!Exists('packages\leveldb-vc140.1.16.0.5\build\native\leveldb-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\leveldb-vc140.1.16.0.5\build\native\leveldb-vc140.targets'))" />
     <Error Condition="!Exists('packages\miniupnpc-vc140.2.0.0.1\build\native\miniupnpc-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\miniupnpc-vc140.2.0.0.1\build\native\miniupnpc-vc140.targets'))" />
     <Error Condition="!Exists('packages\openssl-vc141.1.1.0\build\native\openssl-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\openssl-vc141.1.1.0\build\native\openssl-vc141.targets'))" />
-    <Error Condition="!Exists('packages\secp256k1-vc141.0.1.0.15\build\native\secp256k1-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\secp256k1-vc141.0.1.0.15\build\native\secp256k1-vc141.targets'))" />
     <Error Condition="!Exists('packages\libzmq-vc141.4.2.2\build\native\libzmq-vc141.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\libzmq-vc141.4.2.2\build\native\libzmq-vc141.targets'))" />
     <Error Condition="!Exists('packages\boost.1.71.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.71.0.0\build\boost.targets'))" />
     <Error Condition="!Exists('packages\boost_atomic-vc142.1.71.0.0\build\boost_atomic-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_atomic-vc142.1.71.0.0\build\boost_atomic-vc142.targets'))" />
@@ -543,5 +542,6 @@
     <Error Condition="!Exists('packages\boost_wserialization-vc142.1.71.0.0\build\boost_wserialization-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_wserialization-vc142.1.71.0.0\build\boost_wserialization-vc142.targets'))" />
     <Error Condition="!Exists('packages\boost_zlib-vc142.1.71.0.0\build\boost_zlib-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_zlib-vc142.1.71.0.0\build\boost_zlib-vc142.targets'))" />
     <Error Condition="!Exists('packages\boost-vc142.1.71.0.0\build\boost-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost-vc142.1.71.0.0\build\boost-vc142.targets'))" />
+    <Error Condition="!Exists('packages\secp256k1-vc142.0.1.0.15\build\native\secp256k1-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\secp256k1-vc142.0.1.0.15\build\native\secp256k1-vc142.targets'))" />
   </Target>
 </Project>
