@@ -20,6 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{671539AA-D9A6-4B7B-8044-61B511D6F432}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -66,19 +67,19 @@
     <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\build_windows\$(Platform)\Debug_static\</OutDir>
+    <OutDir>..\build_windows\$(Platform)\$(Configuration)_static\</OutDir>
     <IntDir>./$(OutDir)db_static\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\build_windows\$(Platform)\Release_static\</OutDir>
+    <OutDir>..\build_windows\$(Platform)\$(Configuration)_static\</OutDir>
     <IntDir>./$(OutDir)db_static\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\build_windows\$(Platform)\Debug_static\</OutDir>
+    <OutDir>..\build_windows\$(Platform)\$(Configuration)_static\</OutDir>
     <IntDir>./$(OutDir)db_static\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>..\build_windows\$(Platform)\Release_static\</OutDir>
+    <OutDir>..\build_windows\$(Platform)\$(Configuration)_static\</OutDir>
     <IntDir>./$(OutDir)db_static\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
