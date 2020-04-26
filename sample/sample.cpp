@@ -3,6 +3,17 @@
 #include "base58.h"
 #include "BitcoinAddress.h"
 #include <secp256k1.h>
+#include <openssl/aes.h>
+#include <openssl/evp.h>
+#include <leveldb/db.h>
+#include <zmq.h>
+#include <Windows.h>
+#include <event2/bufferevent.h>
+#include <event2/buffer.h>
+#include <event2/listener.h>
+#include <event2/util.h>
+#include <event2/event.h>
+#include <miniupnpc/upnperrors.h>
 
 static const char* g_pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
@@ -116,11 +127,63 @@ static void decodePrint(const std::string& s) {
     }
     printf("}\n");
 }
+
 int main()
 {
     // std::vector<unsigned char> v(1, 239); // 要素数 1、中身は [239] なリストができる.
     // unsigned char* p = &v[0];
 
+    // miniupnpc lib
+    printf("miniupnpc lib error(0) = %s\n", strupnperror(0));
+    printf("miniupnpc lib error(1) = %s\n", strupnperror(1));
+
+    // OpenSSL Lib
+    printf("-- openssl --\n");
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    printf("EVP_CIPHER_CTX_new result = 0x%p\n", ctx);
+    EVP_CIPHER_CTX_free(ctx);
+
+    // LevelDB Lib
+    printf("-- leveldb --\n");
+    leveldb::DB* db = NULL;
+    leveldb::Options options;
+    options.create_if_missing = true;
+    leveldb::Status status = leveldb::DB::Open(options, "sampledb.tmp", &db);
+    printf("leveldb status = %s\n", status.ok() ? "true" : "false");
+    printf("leveldb pointer = %p\n", db);
+    if (db) {
+        delete db;
+        db = NULL;
+    }
+
+    // libevent2
+    printf("-- libevent2 --\n");
+#ifdef _WIN32
+    WSADATA wsa_data;
+    WSAStartup(0x0201, &wsa_data);
+#endif
+    event_base* base = event_base_new();
+    printf("event_base_new result = %p\n", base);
+    event_base_free(base);
+
+    // ZMQ
+    printf("-- zmq --\n");
+    void* context = zmq_ctx_new();
+    void* responder = zmq_socket(context, ZMQ_REP);
+    int rc = zmq_bind(responder, "tcp://*:5555");
+    assert(rc == 0);
+
+    while (1) {
+        char buffer[10];
+        zmq_recv(responder, buffer, 10, 0);
+        printf("Received Hello\n");
+        Sleep(500);          //  Do some 'work'
+        zmq_send(responder, "World", 5, 0);
+    }
+
+
+
+    // Decode
     unsigned char data[] = { 0,0,0,0,0x11,2,0xE }; // → "11116iLu" になる.
     // unsigned char data[] = "abc";
     // unsigned char data[] = { 0xFF };
