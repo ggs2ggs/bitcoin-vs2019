@@ -1,5 +1,7 @@
 bin
+binlib
 obj
+objlib
 *.tar.gz
 
 *.exe
