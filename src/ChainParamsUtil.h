@@ -12,9 +12,15 @@ class CChainParams;
 class CBlock;
 class CScript;
 
-class CChainParamsUtil {
+class CChainParamsUtil{
+public:
+    static CChainParamsUtil& Instance()
+    {
+        static CChainParamsUtil instance;
+        return instance;
+    }
 private:
-    static CBlock _CreateGenesisBlockImpl(
+    CBlock _CreateGenesisBlockImpl(
         const char* pszTimestamp,
         const CScript& genesisOutputScript,
         uint32_t nTime,
@@ -24,19 +30,19 @@ private:
         const CAmount& genesisReward
     );
 public:
-    static CBlock CreateGenesisBlock(
+    CBlock CreateGenesisBlock(
         uint32_t nTime,
         uint32_t nNonce,
         uint32_t nBits,
         int32_t nVersion,
         const CAmount& genesisReward
     );
-    static CChainParams* GetParamsOfNetworkType(NetworkType networkType) {
+    CChainParams* GetParamsOfNetworkType(NetworkType networkType) {
         return m_paramsOfType[networkType];
     }
-    static void RegisterParamsOfNetworkType(NetworkType networkType, CChainParams* pParams) {
+    void RegisterParamsOfNetworkType(NetworkType networkType, CChainParams* pParams) {
         m_paramsOfType[networkType] = pParams;
     }
 private:
-    static std::map<NetworkType, CChainParams*> m_paramsOfType;
+    std::map<NetworkType, CChainParams*> m_paramsOfType;
 };

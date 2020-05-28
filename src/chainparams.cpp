@@ -12,7 +12,7 @@ static CChainParams* g_pCurrentParams = 0;
 CChainParams::CChainParams(NetworkType networkType)
 {
     m_networkType = networkType;
-    CChainParamsUtil::RegisterParamsOfNetworkType(m_networkType, this);
+    CChainParamsUtil::Instance().RegisterParamsOfNetworkType(m_networkType, this);
 }
 
 const CChainParams &Params() {
@@ -22,7 +22,7 @@ const CChainParams &Params() {
 
 CChainParams& Params(NetworkType chain)
 {
-    CChainParams* p = CChainParamsUtil::GetParamsOfNetworkType(chain);
+    CChainParams* p = CChainParamsUtil::Instance().GetParamsOfNetworkType(chain);
     if (!p) {
         throw std::runtime_error(strprintf("%s: Unknown chain %s.", __func__, chain));
     }
