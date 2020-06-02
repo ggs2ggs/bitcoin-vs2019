@@ -20,6 +20,7 @@
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "BitcoinAddress.h"
 
 #include <stdint.h>
 
@@ -124,7 +125,7 @@ UniValue getnewaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("getnewaddress", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // Parse the account first so we don't generate a key if there's an error
     string strAccount;
@@ -142,18 +143,18 @@ UniValue getnewaddress(const JSONRPCRequest& request)
 
     pwalletMain->SetAddressBook(keyID, strAccount, "receive");
 
-    return CBitcoinAddress(keyID).ToString();
+    return keyID.GetBase58addressWithNetworkPubkeyPrefix().c_str();
 }
 
 
-CBitcoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
+base58string GetAccountAddress(string strAccount, bool bForceNew=false)
 {
     CPubKey pubKey;
     if (!pwalletMain->GetAccountPubkey(pubKey, strAccount, bForceNew)) {
         throw JSONRPCError(RPC_WALLET_KEYPOOL_RAN_OUT, "Error: Keypool ran out, please call keypoolrefill first");
     }
 
-    return CBitcoinAddress(pubKey.GetID());
+    return pubKey.GetID().GetBase58addressWithNetworkPubkeyPrefix();
 }
 
 UniValue getaccountaddress(const JSONRPCRequest& request)
@@ -176,14 +177,14 @@ UniValue getaccountaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("getaccountaddress", "\"myaccount\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // Parse the account first so we don't generate a key if there's an error
     string strAccount = AccountFromValue(request.params[0]);
 
     UniValue ret(UniValue::VSTR);
 
-    ret = GetAccountAddress(strAccount).ToString();
+    ret = GetAccountAddress(strAccount).c_str();
     return ret;
 }
 
@@ -205,7 +206,7 @@ UniValue getrawchangeaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("getrawchangeaddress", "")
        );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (!pwalletMain->IsLocked())
         pwalletMain->TopUpKeyPool();
@@ -219,7 +220,7 @@ UniValue getrawchangeaddress(const JSONRPCRequest& request)
 
     CKeyID keyID = vchPubKey.GetID();
 
-    return CBitcoinAddress(keyID).ToString();
+    return keyID.GetBase58addressWithNetworkPubkeyPrefix().c_str();
 }
 
 
@@ -240,9 +241,10 @@ UniValue setaccount(const JSONRPCRequest& request)
             + HelpExampleRpc("setaccount", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\", \"tabby\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
-    CBitcoinAddress address(request.params[0].get_str());
+    base58string addressString = base58string(request.params[0].get_str());
+    CBitcoinAddress address(addressString);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
 
@@ -257,7 +259,7 @@ UniValue setaccount(const JSONRPCRequest& request)
         if (pwalletMain->mapAddressBook.count(address.Get()))
         {
             string strOldAccount = pwalletMain->mapAddressBook[address.Get()].name;
-            if (address == GetAccountAddress(strOldAccount))
+            if (addressString == GetAccountAddress(strOldAccount))
                 GetAccountAddress(strOldAccount, true);
         }
         pwalletMain->SetAddressBook(address.Get(), strAccount, "receive");
@@ -287,9 +289,9 @@ UniValue getaccount(const JSONRPCRequest& request)
             + HelpExampleRpc("getaccount", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
-    CBitcoinAddress address(request.params[0].get_str());
+    CBitcoinAddress address(base58string(request.params[0].get_str()));
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
 
@@ -322,18 +324,19 @@ UniValue getaddressesbyaccount(const JSONRPCRequest& request)
             + HelpExampleRpc("getaddressesbyaccount", "\"tabby\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strAccount = AccountFromValue(request.params[0]);
 
     // Find all addresses that have the given account
     UniValue ret(UniValue::VARR);
-    BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
     {
-        const CBitcoinAddress& address = item.first;
+        // const CBitcoinAddress& address = item.first;
+        const CTxDestination& dest = item.first;
         const string& strName = item.second.name;
         if (strName == strAccount)
-            ret.push_back(address.ToString());
+            ret.push_back(dest.GetBase58addressWithNetworkPrefix().c_str());
     }
     return ret;
 }
@@ -404,9 +407,9 @@ UniValue sendtoaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("sendtoaddress", "\"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.1, \"donation\", \"seans outpost\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
-    CBitcoinAddress address(request.params[0].get_str());
+    CBitcoinAddress address(base58string(request.params[0].get_str()));
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
 
@@ -461,7 +464,7 @@ UniValue listaddressgroupings(const JSONRPCRequest& request)
             + HelpExampleRpc("listaddressgroupings", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     UniValue jsonGroupings(UniValue::VARR);
     map<CTxDestination, CAmount> balances = pwalletMain->GetAddressBalances();
@@ -471,11 +474,11 @@ UniValue listaddressgroupings(const JSONRPCRequest& request)
         BOOST_FOREACH(CTxDestination address, grouping)
         {
             UniValue addressInfo(UniValue::VARR);
-            addressInfo.push_back(CBitcoinAddress(address).ToString());
+            addressInfo.push_back(address.GetBase58addressWithNetworkPrefix().c_str());
             addressInfo.push_back(ValueFromAmount(balances[address]));
             {
-                if (pwalletMain->mapAddressBook.find(CBitcoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
-                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CBitcoinAddress(address).Get())->second.name);
+                if (pwalletMain->mapAddressBook.find(address) != pwalletMain->mapAddressBook.end())
+                    addressInfo.push_back(pwalletMain->mapAddressBook.find(address)->second.name);
             }
             jsonGrouping.push_back(addressInfo);
         }
@@ -510,11 +513,11 @@ UniValue signmessage(const JSONRPCRequest& request)
             + HelpExampleRpc("signmessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\", \"my message\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     EnsureWalletIsUnlocked();
 
-    string strAddress = request.params[0].get_str();
+    base58string strAddress = base58string(request.params[0].get_str());
     string strMessage = request.params[1].get_str();
 
     CBitcoinAddress addr(strAddress);
@@ -565,10 +568,10 @@ UniValue getreceivedbyaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("getreceivedbyaddress", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\", 6")
        );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // Bitcoin address
-    CBitcoinAddress address = CBitcoinAddress(request.params[0].get_str());
+    CBitcoinAddress address = CBitcoinAddress(base58string(request.params[0].get_str()));
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
     CScript scriptPubKey = GetScriptForDestination(address.Get());
@@ -623,7 +626,7 @@ UniValue getreceivedbyaccount(const JSONRPCRequest& request)
             + HelpExampleRpc("getreceivedbyaccount", "\"tabby\", 6")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // Minimum confirmations
     int nMinDepth = 1;
@@ -693,7 +696,7 @@ UniValue getbalance(const JSONRPCRequest& request)
             + HelpExampleRpc("getbalance", "\"*\", 6")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.params.size() == 0)
         return  ValueFromAmount(pwalletMain->GetBalance());
@@ -754,7 +757,7 @@ UniValue getunconfirmedbalance(const JSONRPCRequest &request)
                 "getunconfirmedbalance\n"
                 "Returns the server's total unconfirmed balance\n");
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     return ValueFromAmount(pwalletMain->GetUnconfirmedBalance());
 }
@@ -786,7 +789,7 @@ UniValue movecmd(const JSONRPCRequest& request)
             + HelpExampleRpc("move", "\"timotei\", \"akiko\", 0.01, 6, \"happy birthday!\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strFrom = AccountFromValue(request.params[0]);
     string strTo = AccountFromValue(request.params[1]);
@@ -838,10 +841,10 @@ UniValue sendfrom(const JSONRPCRequest& request)
             + HelpExampleRpc("sendfrom", "\"tabby\", \"1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\", 0.01, 6, \"donation\", \"seans outpost\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strAccount = AccountFromValue(request.params[0]);
-    CBitcoinAddress address(request.params[1].get_str());
+    CBitcoinAddress address(base58string(request.params[1].get_str()));
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
     CAmount nAmount = AmountFromValue(request.params[2]);
@@ -912,7 +915,7 @@ UniValue sendmany(const JSONRPCRequest& request)
             + HelpExampleRpc("sendmany", "\"\", \"{\\\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\\\":0.01,\\\"1353tsE8YMTA4EuV7dgUXGjNFf9KpVvKHz\\\":0.02}\", 6, \"testing\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (pwalletMain->GetBroadcastTransactions() && !g_connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
@@ -939,7 +942,7 @@ UniValue sendmany(const JSONRPCRequest& request)
     vector<string> keys = sendTo.getKeys();
     BOOST_FOREACH(const string& name_, keys)
     {
-        CBitcoinAddress address(name_);
+        CBitcoinAddress address = CBitcoinAddress(base58string(name_));
         if (!address.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Bitcoin address: ")+name_);
 
@@ -1024,7 +1027,7 @@ UniValue addmultisigaddress(const JSONRPCRequest& request)
         throw runtime_error(msg);
     }
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strAccount;
     if (request.params.size() > 2)
@@ -1036,7 +1039,7 @@ UniValue addmultisigaddress(const JSONRPCRequest& request)
     pwalletMain->AddCScript(inner);
 
     pwalletMain->SetAddressBook(innerID, strAccount, "send");
-    return CBitcoinAddress(innerID).ToString();
+    return innerID.GetBase58addressWithNetworkScriptPrefix().c_str();
 }
 
 class Witnessifier : public boost::static_visitor<bool>
@@ -1112,7 +1115,7 @@ UniValue addwitnessaddress(const JSONRPCRequest& request)
         }
     }
 
-    CBitcoinAddress address(request.params[0].get_str());
+    CBitcoinAddress address(base58string(request.params[0].get_str()));
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
 
@@ -1125,7 +1128,7 @@ UniValue addwitnessaddress(const JSONRPCRequest& request)
 
     pwalletMain->SetAddressBook(w.result, "", "receive");
 
-    return CBitcoinAddress(w.result).ToString();
+    return w.result.GetBase58addressWithNetworkScriptPrefix().c_str();
 }
 
 struct tallyitem
@@ -1160,7 +1163,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             filter = filter | ISMINE_WATCH_ONLY;
 
     // Tally
-    map<CBitcoinAddress, tallyitem> mapTally;
+    map<base58string, tallyitem> mapTally;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -1182,7 +1185,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             if(!(mine & filter))
                 continue;
 
-            tallyitem& item = mapTally[address];
+            tallyitem& item = mapTally[address.GetBase58addressWithNetworkPrefix()];
             item.nAmount += txout.nValue;
             item.nConf = min(item.nConf, nDepth);
             item.txids.push_back(wtx.GetHash());
@@ -1194,11 +1197,12 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
     // Reply
     UniValue ret(UniValue::VARR);
     map<string, tallyitem> mapAccountTally;
-    BOOST_FOREACH(const PAIRTYPE(CBitcoinAddress, CAddressBookData)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CTxDestination, CAddressBookData)& item, pwalletMain->mapAddressBook)
     {
-        const CBitcoinAddress& address = item.first;
+        // const CBitcoinAddress& address = item.first;
+        const CTxDestination& dest = item.first;
         const string& strAccount = item.second.name;
-        map<CBitcoinAddress, tallyitem>::iterator it = mapTally.find(address);
+        map<base58string, tallyitem>::iterator it = mapTally.find(dest.GetBase58addressWithNetworkPrefix());
         if (it == mapTally.end() && !fIncludeEmpty)
             continue;
 
@@ -1224,7 +1228,7 @@ UniValue ListReceived(const UniValue& params, bool fByAccounts)
             UniValue obj(UniValue::VOBJ);
             if(fIsWatchonly)
                 obj.push_back(Pair("involvesWatchonly", true));
-            obj.push_back(Pair("address",       address.ToString()));
+            obj.push_back(Pair("address",       dest.GetBase58addressWithNetworkPrefix().c_str()));
             obj.push_back(Pair("account",       strAccount));
             obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
             obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
@@ -1299,7 +1303,7 @@ UniValue listreceivedbyaddress(const JSONRPCRequest& request)
             + HelpExampleRpc("listreceivedbyaddress", "6, true, true")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     return ListReceived(request.params, false);
 }
@@ -1336,16 +1340,15 @@ UniValue listreceivedbyaccount(const JSONRPCRequest& request)
             + HelpExampleRpc("listreceivedbyaccount", "6, true, true")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     return ListReceived(request.params, true);
 }
 
 static void MaybePushAddress(UniValue & entry, const CTxDestination &dest)
 {
-    CBitcoinAddress addr;
-    if (addr.Set(dest))
-        entry.push_back(Pair("address", addr.ToString()));
+    if(!dest.IsNoDestination())
+        entry.push_back(Pair("address", dest.GetBase58addressWithNetworkPrefix().c_str()));
 }
 
 void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDepth, bool fLong, UniValue& ret, const isminefilter& filter)
@@ -1505,7 +1508,7 @@ UniValue listtransactions(const JSONRPCRequest& request)
             + HelpExampleRpc("listtransactions", "\"*\", 20, 100")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strAccount = "*";
     if (request.params.size() > 0)
@@ -1596,7 +1599,7 @@ UniValue listaccounts(const JSONRPCRequest& request)
             + HelpExampleRpc("listaccounts", "6")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     int nMinDepth = 1;
     if (request.params.size() > 0)
@@ -1693,7 +1696,7 @@ UniValue listsinceblock(const JSONRPCRequest& request)
             + HelpExampleRpc("listsinceblock", "\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\", 6")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     const CBlockIndex *pindex = NULL;
     int target_confirms = 1;
@@ -1790,7 +1793,7 @@ UniValue gettransaction(const JSONRPCRequest& request)
             "      \"fee\": x.xxx,                     (numeric) The amount of the fee in " + CURRENCY_UNIT + ". This is negative and only available for the \n"
             "                                           'send' category of transactions.\n"
             "      \"abandoned\": xxx                  (bool) 'true' if the transaction has been abandoned (inputs are respendable). Only available for the \n"
-            "                                           'send' category of transactions.\n"			
+            "                                           'send' category of transactions.\n"
             "    }\n"
             "    ,...\n"
             "  ],\n"
@@ -1803,7 +1806,7 @@ UniValue gettransaction(const JSONRPCRequest& request)
             + HelpExampleRpc("gettransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     uint256 hash;
     hash.SetHex(request.params[0].get_str());
@@ -1860,7 +1863,7 @@ UniValue abandontransaction(const JSONRPCRequest& request)
             + HelpExampleRpc("abandontransaction", "\"1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     uint256 hash;
     hash.SetHex(request.params[0].get_str());
@@ -1890,7 +1893,7 @@ UniValue backupwallet(const JSONRPCRequest& request)
             + HelpExampleRpc("backupwallet", "\"backup.dat\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     string strDest = request.params[0].get_str();
     if (!pwalletMain->BackupWallet(strDest))
@@ -1917,7 +1920,7 @@ UniValue keypoolrefill(const JSONRPCRequest& request)
             + HelpExampleRpc("keypoolrefill", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // 0 is interpreted by TopUpKeyPool() as the default keypool size given by -keypool
     unsigned int kpSize = 0;
@@ -1969,7 +1972,7 @@ UniValue walletpassphrase(const JSONRPCRequest& request)
             + HelpExampleRpc("walletpassphrase", "\"my pass phrase\", 60")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.fHelp)
         return true;
@@ -2021,7 +2024,7 @@ UniValue walletpassphrasechange(const JSONRPCRequest& request)
             + HelpExampleRpc("walletpassphrasechange", "\"old one\", \"new one\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.fHelp)
         return true;
@@ -2072,7 +2075,7 @@ UniValue walletlock(const JSONRPCRequest& request)
             + HelpExampleRpc("walletlock", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.fHelp)
         return true;
@@ -2118,7 +2121,7 @@ UniValue encryptwallet(const JSONRPCRequest& request)
             + HelpExampleRpc("encryptwallet", "\"my pass phrase\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.fHelp)
         return true;
@@ -2188,7 +2191,7 @@ UniValue lockunspent(const JSONRPCRequest& request)
             + HelpExampleRpc("lockunspent", "false, \"[{\\\"txid\\\":\\\"a08e6907dbbd3d809776dbfc5d82e371b764ed838b5655e72f463568df1aadf0\\\",\\\"vout\\\":1}]\"")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     if (request.params.size() == 1)
         RPCTypeCheck(request.params, boost::assign::list_of(UniValue::VBOOL));
@@ -2266,7 +2269,7 @@ UniValue listlockunspent(const JSONRPCRequest& request)
             + HelpExampleRpc("listlockunspent", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     vector<COutPoint> vOutpts;
     pwalletMain->ListLockedCoins(vOutpts);
@@ -2302,7 +2305,7 @@ UniValue settxfee(const JSONRPCRequest& request)
             + HelpExampleRpc("settxfee", "0.00001")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     // Amount
     CAmount nAmount = AmountFromValue(request.params[0]);
@@ -2338,7 +2341,7 @@ UniValue getwalletinfo(const JSONRPCRequest& request)
             + HelpExampleRpc("getwalletinfo", "")
         );
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
@@ -2351,7 +2354,7 @@ UniValue getwalletinfo(const JSONRPCRequest& request)
     if (pwalletMain->IsCrypted())
         obj.push_back(Pair("unlocked_until", nWalletUnlockTime));
     obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
-    CKeyID masterKeyID = pwalletMain->GetHDChain().masterKeyID;
+    CKeyID masterKeyID = pwalletMain->GetHDChain().m_masterKeyID;
     if (!masterKeyID.IsNull())
          obj.push_back(Pair("hdmasterkeyid", masterKeyID.GetHex()));
     return obj;
@@ -2374,13 +2377,13 @@ UniValue resendwallettransactions(const JSONRPCRequest& request)
     if (!g_connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
 
     std::vector<uint256> txids = pwalletMain->ResendWalletTransactionsBefore(GetTime(), g_connman.get());
     UniValue result(UniValue::VARR);
     BOOST_FOREACH(const uint256& txid, txids)
     {
-        result.push_back(txid.ToString());
+        result.push_back(txid.ToHexString());
     }
     return result;
 }
@@ -2443,18 +2446,19 @@ UniValue listunspent(const JSONRPCRequest& request)
         nMaxDepth = request.params[1].get_int();
     }
 
-    set<CBitcoinAddress> setAddress;
+    set<base58string> setAddress;
     if (request.params.size() > 2 && !request.params[2].isNull()) {
         RPCTypeCheckArgument(request.params[2], UniValue::VARR);
         UniValue inputs = request.params[2].get_array();
         for (unsigned int idx = 0; idx < inputs.size(); idx++) {
             const UniValue& input = inputs[idx];
-            CBitcoinAddress address(input.get_str());
+            base58string addressString = base58string(input.get_str());
+            CBitcoinAddress address(addressString);
             if (!address.IsValid())
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Bitcoin address: ")+input.get_str());
-            if (setAddress.count(address))
+            if (setAddress.count(addressString))
                 throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+input.get_str());
-           setAddress.insert(address);
+           setAddress.insert(addressString);
         }
     }
 
@@ -2467,7 +2471,7 @@ UniValue listunspent(const JSONRPCRequest& request)
     UniValue results(UniValue::VARR);
     vector<COutput> vecOutputs;
     assert(pwalletMain != NULL);
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
     pwalletMain->AvailableCoins(vecOutputs, !include_unsafe, NULL, true);
     BOOST_FOREACH(const COutput& out, vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
@@ -2477,7 +2481,7 @@ UniValue listunspent(const JSONRPCRequest& request)
         const CScript& scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
         bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
-        if (setAddress.size() && (!fValidAddress || !setAddress.count(address)))
+        if (setAddress.size() && (!fValidAddress || !setAddress.count(address.GetBase58addressWithNetworkPrefix())))
             continue;
 
         UniValue entry(UniValue::VOBJ);
@@ -2485,7 +2489,7 @@ UniValue listunspent(const JSONRPCRequest& request)
         entry.push_back(Pair("vout", out.i));
 
         if (fValidAddress) {
-            entry.push_back(Pair("address", CBitcoinAddress(address).ToString()));
+            entry.push_back(Pair("address", address.GetBase58addressWithNetworkPrefix().c_str()));
 
             if (pwalletMain->mapAddressBook.count(address))
                 entry.push_back(Pair("account", pwalletMain->mapAddressBook[address].name));
@@ -2597,7 +2601,7 @@ UniValue fundrawtransaction(const JSONRPCRequest& request)
             true, true);
 
         if (options.exists("changeAddress")) {
-            CBitcoinAddress address(options["changeAddress"].get_str());
+            CBitcoinAddress address(base58string(options["changeAddress"].get_str()));
 
             if (!address.IsValid())
                 throw JSONRPCError(RPC_INVALID_PARAMETER, "changeAddress must be a valid bitcoin address");
@@ -2745,7 +2749,7 @@ UniValue bumpfee(const JSONRPCRequest& request)
     hash.SetHex(request.params[0].get_str());
 
     // retrieve the original tx from the wallet
-    LOCK2(cs_main, pwalletMain->cs_wallet);
+    LOCK2(cs_main, pwalletMain->m_walletCriticalSection);
     EnsureWalletIsUnlocked();
     if (!pwalletMain->mapWallet.count(hash)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid or non-wallet transaction id");
@@ -2773,7 +2777,7 @@ UniValue bumpfee(const JSONRPCRequest& request)
     }
 
     if (wtx.mapValue.count("replaced_by_txid")) {
-        throw JSONRPCError(RPC_INVALID_REQUEST, strprintf("Cannot bump transaction %s which was already bumped by transaction %s", hash.ToString(), wtx.mapValue.at("replaced_by_txid")));
+        throw JSONRPCError(RPC_INVALID_REQUEST, strprintf("Cannot bump transaction %s which was already bumped by transaction %s", hash.ToHexString(), wtx.mapValue.at("replaced_by_txid")));
     }
 
     // check that original tx consists entirely of our inputs
@@ -2945,7 +2949,7 @@ UniValue bumpfee(const JSONRPCRequest& request)
     CReserveKey reservekey(pwalletMain);
     CWalletTx wtxBumped(pwalletMain, MakeTransactionRef(std::move(tx)));
     wtxBumped.mapValue = wtx.mapValue;
-    wtxBumped.mapValue["replaces_txid"] = hash.ToString();
+    wtxBumped.mapValue["replaces_txid"] = hash.ToHexString();
     wtxBumped.vOrderForm = wtx.vOrderForm;
     wtxBumped.strFromAccount = wtx.strFromAccount;
     wtxBumped.fTimeReceivedIsTxTime = true;

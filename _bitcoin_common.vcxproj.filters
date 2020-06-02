@@ -1,0 +1,830 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\primitive">
+      <UniqueIdentifier>{229af34f-0d90-44c2-8549-519a8d549a34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\key">
+      <UniqueIdentifier>{db6f8a17-7d14-49e0-beb2-493547e7f656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\key\secret">
+      <UniqueIdentifier>{dd096edd-b052-4997-8a37-c8c0ed821ef5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\key\script">
+      <UniqueIdentifier>{4956e91b-06e2-4847-a60b-0bc6fc4e62a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\key\pub">
+      <UniqueIdentifier>{529e43d1-1e1a-4d07-8d6e-45a9308351a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\wallet">
+      <UniqueIdentifier>{4bfe4eb4-9f95-4201-ad71-1bc2500bb1b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\script">
+      <UniqueIdentifier>{f2ba9646-f13a-4fef-a436-2dea8b72f42e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\env">
+      <UniqueIdentifier>{7116b201-9887-41fb-850a-6b90e927c283}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\noui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scheduler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\protocol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\random.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\clientversion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\coins.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core_read.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core_write.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dbwrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\httprpc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\httpserver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\merkleblock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\miner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\net_processing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netaddress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\netbase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\threadinterrupt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timedata.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\torcontrol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\txdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\txmempool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui_interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilmoneystr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilstrencodings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utiltime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\validation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\versionbits.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\warnings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\blockencodings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bloom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\checkpoints.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\block.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\transaction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\blockchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\mining.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\net.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\protocol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\rawtransaction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rpc\server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\bitcoinconsensus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\interpreter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\sigcache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\sign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\db.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\rpcdump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\rpcwallet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\walletdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\aes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\hmac_sha256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\hmac_sha512.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ripemd160.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\sha1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\sha256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\sha512.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\support\cleanse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\support\lockedpool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\addrdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\addrman.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\amount.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\univalue\lib\univalue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\univalue\lib\univalue_read.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\univalue\lib\univalue_write.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\consensus\merkle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compat\glibc_sanity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compat\glibcxx_sanity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\compat\strnlen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zmq\zmqpublishnotifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zmq\zmqnotificationinterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zmq\zmqabstractnotifier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\policy\fees.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\policy\policy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\policy\rbf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\uint256.cpp">
+      <Filter>Source Files\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base_uint.cpp">
+      <Filter>Source Files\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base58.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="src\BitcoinAddress.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BitcoinExtKeyBase.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\standard.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TxDestination.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="src\key.cpp">
+      <Filter>Source Files\key\secret</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtKey.cpp">
+      <Filter>Source Files\key\secret</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\script.cpp">
+      <Filter>Source Files\key\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\script_error.cpp">
+      <Filter>Source Files\key\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\script_const.cpp">
+      <Filter>Source Files\key\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\ScriptID.cpp">
+      <Filter>Source Files\key\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\ScriptNum.cpp">
+      <Filter>Source Files\key\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\base58string.cpp">
+      <Filter>Source Files\key</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pubkey.cpp">
+      <Filter>Source Files\key\pub</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ExtPubKey.cpp">
+      <Filter>Source Files\key\pub</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PubKeyUtil.cpp">
+      <Filter>Source Files\key\pub</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\wallet.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\crypter.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\validationinterface.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\keystore.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\AccountingEntry.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\WalletUtil.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\KeyPool.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\MerkleTx.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\WalletTx.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\script\ismine.cpp">
+      <Filter>Source Files\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\WalletOutput.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\WalletKey.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\ReserveKey.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\wallet\WalletAccount.cpp">
+      <Filter>Source Files\wallet</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chainparams.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chainparamsbase.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chainparams_1_mainnet.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chainparams_2_testnet.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+    <ClCompile Include="src\chainparams_3_regtest.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ChainParamsUtil.cpp">
+      <Filter>Source Files\env</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\addrdb.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\addrman.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\aes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\amount.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\bitcoinconsensus.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\block.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\blockencodings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bloom.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compat\byteswap.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chain.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\checkpoints.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\checkqueue.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\support\cleanse.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rpc\client.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\clientversion.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\coincontrol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\coins.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\common.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compat.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compressor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\consensus\consensus.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core_io.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core_memusage.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cuckoocache.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\db.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dbwrapper.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compat\endian.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\support\events.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\policy\fees.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hash.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\hmac_sha256.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\hmac_sha512.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\httprpc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\httpserver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\indirectmap.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\init.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\interpreter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\limitedmap.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\support\lockedpool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memusage.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\consensus\merkle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\merkleblock.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\miner.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\net_processing.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\netaddress.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\netbase.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\netmessagemaker.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\noui.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\consensus\params.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\policy\policy.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\prevector.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rpc\protocol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\protocol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\random.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\policy\rbf.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rpc\register.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\reverselock.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\ripemd160.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\rpcwallet.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\compat\sanity.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scheduler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\support\allocators\secure.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\serialize.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rpc\server.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\sha1.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\sha256.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\crypto\sha512.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\sigcache.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\sign.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\streams.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sync.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threadinterrupt.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\threadsafety.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\timedata.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tinyformat.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\torcontrol.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\primitives\transaction.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\txdb.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\txmempool.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui_interface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\undo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\univalue\include\univalue.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\univalue\lib\univalue_escapes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\univalue\lib\univalue_utffilter.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\univalue\univalue-config.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\util.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilmoneystr.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilstrencodings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utiltime.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\consensus\validation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\validation.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\version.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\versionbits.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\walletdb.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\warnings.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wintype.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\support\allocators\zeroafterfree.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zmq\zmqabstractnotifier.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zmq\zmqconfig.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zmq\zmqnotificationinterface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\zmq\zmqpublishnotifier.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\uint256.h">
+      <Filter>Source Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base_uint.h">
+      <Filter>Source Files\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base58.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="src\BitcoinAddress.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\BitcoinExtKeyBase.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\standard.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TxDestination.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\key.h">
+      <Filter>Source Files\key\secret</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ExtKey.h">
+      <Filter>Source Files\key\secret</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\script.h">
+      <Filter>Source Files\key\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\script_error.h">
+      <Filter>Source Files\key\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\ScriptNum.h">
+      <Filter>Source Files\key\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\script_const.h">
+      <Filter>Source Files\key\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\ScriptID.h">
+      <Filter>Source Files\key\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\base58string.h">
+      <Filter>Source Files\key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pubkey.h">
+      <Filter>Source Files\key\pub</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ExtPubKey.h">
+      <Filter>Source Files\key\pub</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PubKeyUtil.h">
+      <Filter>Source Files\key\pub</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\wallet.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\crypter.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\validationinterface.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\keystore.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\AccountingEntry.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\WalletUtil.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\KeyPool.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\MerkleTx.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\WalletTx.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\script\ismine.h">
+      <Filter>Source Files\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\WalletOutput.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\WalletKey.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\ReserveKey.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wallet\WalletAccount.h">
+      <Filter>Source Files\wallet</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chainparams.h">
+      <Filter>Source Files\env</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chainparamsbase.h">
+      <Filter>Source Files\env</Filter>
+    </ClInclude>
+    <ClInclude Include="src\chainparamsseeds.h">
+      <Filter>Source Files\env</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChainParamsUtil.h">
+      <Filter>Source Files\env</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>

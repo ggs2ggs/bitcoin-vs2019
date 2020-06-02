@@ -14,6 +14,7 @@
 #include "util.h"
 #include "utilstrencodings.h"
 #include "test/test_bitcoin.h"
+#include "BitcoinAddress.h"
 
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -121,9 +122,8 @@ public:
 BOOST_AUTO_TEST_CASE(base58_keys_valid_parse)
 {
     UniValue tests = read_json(std::string(json_tests::base58_keys_valid, json_tests::base58_keys_valid + sizeof(json_tests::base58_keys_valid)));
-    CBitcoinSecret secret;
     CBitcoinAddress addr;
-    SelectParams(CBaseChainParams::MAIN);
+    SelectParams(NETWORK_MAIN);
 
     for (unsigned int idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
@@ -133,43 +133,42 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_parse)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }
-        std::string exp_base58string = test[0].get_str();
+        base58string exp_base58string(test[0].get_str());
         std::vector<unsigned char> exp_payload = ParseHex(test[1].get_str());
         const UniValue &metadata = test[2].get_obj();
         bool isPrivkey = find_value(metadata, "isPrivkey").get_bool();
         bool isTestnet = find_value(metadata, "isTestnet").get_bool();
         if (isTestnet)
-            SelectParams(CBaseChainParams::TESTNET);
+            SelectParams(NETWORK_TESTNET);
         else
-            SelectParams(CBaseChainParams::MAIN);
+            SelectParams(NETWORK_MAIN);
         if(isPrivkey)
         {
             bool isCompressed = find_value(metadata, "isCompressed").get_bool();
             // Must be valid private key
             // Note: CBitcoinSecret::SetString tests isValid, whereas CBitcoinAddress does not!
-            BOOST_CHECK_MESSAGE(secret.SetString(exp_base58string), "!SetString:"+ strTest);
-            BOOST_CHECK_MESSAGE(secret.IsValid(), "!IsValid:" + strTest);
-            CKey privkey = secret.GetKey();
+            CKey privkey = CKey::FromBase58string(exp_base58string);
+            BOOST_CHECK_MESSAGE(privkey.IsValid(), "!IsValid:" + strTest);
             BOOST_CHECK_MESSAGE(privkey.IsCompressed() == isCompressed, "compressed mismatch:" + strTest);
             BOOST_CHECK_MESSAGE(privkey.size() == exp_payload.size() && std::equal(privkey.begin(), privkey.end(), exp_payload.begin()), "key mismatch:" + strTest);
 
             // Private key must be invalid public key
-            addr.SetString(exp_base58string);
+            addr.SetBase58string(exp_base58string);
             BOOST_CHECK_MESSAGE(!addr.IsValid(), "IsValid privkey as pubkey:" + strTest);
         }
         else
         {
             std::string exp_addrType = find_value(metadata, "addrType").get_str(); // "script" or "pubkey"
             // Must be valid public key
-            BOOST_CHECK_MESSAGE(addr.SetString(exp_base58string), "SetString:" + strTest);
+            BOOST_CHECK_MESSAGE(addr.SetBase58string(exp_base58string), "SetString:" + strTest);
             BOOST_CHECK_MESSAGE(addr.IsValid(), "!IsValid:" + strTest);
             BOOST_CHECK_MESSAGE(addr.IsScript() == (exp_addrType == "script"), "isScript mismatch" + strTest);
             CTxDestination dest = addr.Get();
             BOOST_CHECK_MESSAGE(boost::apply_visitor(TestAddrTypeVisitor(exp_addrType), dest), "addrType mismatch" + strTest);
 
             // Public key must be invalid private key
-            secret.SetString(exp_base58string);
-            BOOST_CHECK_MESSAGE(!secret.IsValid(), "IsValid pubkey as privkey:" + strTest);
+            CKey key = CKey::FromBase58string(exp_base58string);
+            BOOST_CHECK_MESSAGE(!key.IsValid(), "IsValid pubkey as privkey:" + strTest);
         }
     }
 }
@@ -193,18 +192,16 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
         bool isPrivkey = find_value(metadata, "isPrivkey").get_bool();
         bool isTestnet = find_value(metadata, "isTestnet").get_bool();
         if (isTestnet)
-            SelectParams(CBaseChainParams::TESTNET);
+            SelectParams(NETWORK_TESTNET);
         else
-            SelectParams(CBaseChainParams::MAIN);
+            SelectParams(NETWORK_MAIN);
         if(isPrivkey)
         {
             bool isCompressed = find_value(metadata, "isCompressed").get_bool();
             CKey key;
-            key.Set(exp_payload.begin(), exp_payload.end(), isCompressed);
+            key.SetBinary(&*exp_payload.begin(), &*exp_payload.end(), isCompressed);
             assert(key.IsValid());
-            CBitcoinSecret secret;
-            secret.SetKey(key);
-            BOOST_CHECK_MESSAGE(secret.ToString() == exp_base58string, "result mismatch: " + strTest);
+            BOOST_CHECK_MESSAGE(key.GetBase58stringWithNetworkSecretKeyPrefix().c_str() == exp_base58string, "result mismatch: " + strTest);
         }
         else
         {
@@ -227,25 +224,24 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
                 BOOST_ERROR("Bad addrtype: " << strTest);
                 continue;
             }
-            CBitcoinAddress addrOut;
-            BOOST_CHECK_MESSAGE(addrOut.Set(dest), "encode dest: " + strTest);
-            BOOST_CHECK_MESSAGE(addrOut.ToString() == exp_base58string, "mismatch: " + strTest);
+            // CBitcoinAddress addrOut;
+            BOOST_CHECK_MESSAGE(!dest.IsNoDestination(), "encode dest: " + strTest);
+            BOOST_CHECK_MESSAGE(dest.GetBase58addressWithNetworkPrefix().c_str() == exp_base58string, "mismatch: " + strTest);
         }
     }
 
     // Visiting a CNoDestination must fail
     CBitcoinAddress dummyAddr;
     CTxDestination nodest = CNoDestination();
-    BOOST_CHECK(!dummyAddr.Set(nodest));
+    BOOST_CHECK(nodest.IsNoDestination());
 
-    SelectParams(CBaseChainParams::MAIN);
+    SelectParams(NETWORK_MAIN);
 }
 
 // Goal: check that base58 parsing code is robust against a variety of corrupted data
 BOOST_AUTO_TEST_CASE(base58_keys_invalid)
 {
     UniValue tests = read_json(std::string(json_tests::base58_keys_invalid, json_tests::base58_keys_invalid + sizeof(json_tests::base58_keys_invalid))); // Negative testcases
-    CBitcoinSecret secret;
     CBitcoinAddress addr;
 
     for (unsigned int idx = 0; idx < tests.size(); idx++) {
@@ -256,13 +252,13 @@ BOOST_AUTO_TEST_CASE(base58_keys_invalid)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }
-        std::string exp_base58string = test[0].get_str();
+        base58string exp_base58string(test[0].get_str());
 
         // must be invalid as public and as private key
-        addr.SetString(exp_base58string);
+        addr.SetBase58string(exp_base58string);
         BOOST_CHECK_MESSAGE(!addr.IsValid(), "IsValid pubkey:" + strTest);
-        secret.SetString(exp_base58string);
-        BOOST_CHECK_MESSAGE(!secret.IsValid(), "IsValid privkey:" + strTest);
+        CKey key = CKey::FromBase58string(exp_base58string);
+        BOOST_CHECK_MESSAGE(!key.IsValid(), "IsValid privkey:" + strTest);
     }
 }
 

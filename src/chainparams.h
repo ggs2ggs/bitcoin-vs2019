@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
+﻿// Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -12,6 +12,8 @@
 #include "protocol.h"
 
 #include <vector>
+
+enum NetworkType;
 
 struct CDNSSeedData {
     std::string name, host;
@@ -28,6 +30,10 @@ typedef std::map<int, uint256> MapCheckpoints;
 
 struct CCheckpointData {
     MapCheckpoints mapCheckpoints;
+
+    CCheckpointData() : mapCheckpoints() {}
+    CCheckpointData(const MapCheckpoints& _mapCheckpoints) : mapCheckpoints(_mapCheckpoints) {}
+//  CCheckpointData(const boost::assign_detail::generic_list< std::pair<int, uint256> >& _mapCheckpoints) : mapCheckpoints(_mapCheckpoints) {}
 };
 
 struct ChainTxData {
@@ -47,11 +53,11 @@ class CChainParams
 {
 public:
     enum Base58Type {
-        PUBKEY_ADDRESS,
-        SCRIPT_ADDRESS,
-        SECRET_KEY,
-        EXT_PUBLIC_KEY,
-        EXT_SECRET_KEY,
+        PUBKEY_ADDRESS, // 公開鍵アドレス.
+        SCRIPT_ADDRESS, // スクリプトアドレス.
+        SECRET_KEY,     // 秘密鍵.
+        EXT_PUBLIC_KEY, // 拡張公開鍵.
+        EXT_SECRET_KEY, // 拡張秘密鍵.
 
         MAX_BASE58_TYPES
     };
@@ -71,14 +77,15 @@ public:
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** Return the BIP70 network string (main, test or regtest) */
-    std::string NetworkIDString() const { return strNetworkID; }
+    //std::string NetworkIDString() const { return strNetworkID; }
+    NetworkType GetNetworkType() const { return m_networkType; }
     const std::vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
     const std::vector<unsigned char>& Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
     const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
     const CCheckpointData& Checkpoints() const { return checkpointData; }
     const ChainTxData& TxData() const { return chainTxData; }
 protected:
-    CChainParams() {}
+    CChainParams(NetworkType networkType);
 
     Consensus::Params consensus;
     CMessageHeader::MessageStartChars pchMessageStart;
@@ -86,7 +93,8 @@ protected:
     uint64_t nPruneAfterHeight;
     std::vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
-    std::string strNetworkID;
+    NetworkType m_networkType;
+    //std::string strNetworkID;
     CBlock genesis;
     std::vector<SeedSpec6> vFixedSeeds;
     bool fMiningRequiresPeers;
@@ -106,13 +114,14 @@ const CChainParams &Params();
 /**
  * @returns CChainParams for the given BIP70 chain name.
  */
-CChainParams& Params(const std::string& chain);
+enum NetworkType;
+CChainParams& Params(NetworkType chain);
 
 /**
  * Sets the params returned by Params() to those for the given BIP70 chain name.
  * @throws std::runtime_error when the chain is not supported.
  */
-void SelectParams(const std::string& chain);
+void SelectParams(NetworkType chain);
 
 /**
  * Allows modifying the BIP9 regtest parameters.

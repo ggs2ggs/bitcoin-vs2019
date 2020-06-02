@@ -8,14 +8,14 @@
 #include "wallet/db.h"
 #include "wallet/wallet.h"
 
-WalletTestingSetup::WalletTestingSetup(const std::string& chainName):
-    TestingSetup(chainName)
+WalletTestingSetup::WalletTestingSetup(NetworkType chainType):
+    TestingSetup(chainType)
 {
     bitdb.MakeMock();
 
     bool fFirstRun;
     pwalletMain = new CWallet("wallet_test.dat");
-    pwalletMain->LoadWallet(fFirstRun);
+    pwalletMain->LoadWallet(&fFirstRun);
     RegisterValidationInterface(pwalletMain);
 
     RegisterWalletRPCCommands(tableRPC);

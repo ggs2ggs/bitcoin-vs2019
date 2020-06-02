@@ -112,7 +112,9 @@ public:
      * */
     inline bool bit_is_set(uint32_t s) const
     {
-        return (1 << (s & 7)) & mem[s >> 3].load(std::memory_order_relaxed);
+        return (
+            (1 << (s & 7)) & mem[s >> 3].load(std::memory_order_relaxed)
+        ) != 0;
     }
 };
 
@@ -217,14 +219,14 @@ private:
      */
     inline std::array<uint32_t, 8> compute_hashes(const Element& e) const
     {
-        return {{hash_function.template operator()<0>(e) & hash_mask,
-                 hash_function.template operator()<1>(e) & hash_mask,
-                 hash_function.template operator()<2>(e) & hash_mask,
-                 hash_function.template operator()<3>(e) & hash_mask,
-                 hash_function.template operator()<4>(e) & hash_mask,
-                 hash_function.template operator()<5>(e) & hash_mask,
-                 hash_function.template operator()<6>(e) & hash_mask,
-                 hash_function.template operator()<7>(e) & hash_mask}};
+        return {{hash_function.operator()<0>(e) & hash_mask,
+                 hash_function.operator()<1>(e) & hash_mask,
+                 hash_function.operator()<2>(e) & hash_mask,
+                 hash_function.operator()<3>(e) & hash_mask,
+                 hash_function.operator()<4>(e) & hash_mask,
+                 hash_function.operator()<5>(e) & hash_mask,
+                 hash_function.operator()<6>(e) & hash_mask,
+                 hash_function.operator()<7>(e) & hash_mask}};
     }
 
     /* end

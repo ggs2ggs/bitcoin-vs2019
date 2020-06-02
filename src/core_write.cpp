@@ -14,6 +14,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "utilstrencodings.h"
+#include "BitcoinAddress.h"
 
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
@@ -125,14 +126,14 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
                         UniValue& out, bool fIncludeHex)
 {
     txnouttype type;
-    std::vector<CTxDestination> addresses;
+    std::vector<CTxDestination> dests;
     int nRequired;
 
     out.pushKV("asm", ScriptToAsmStr(scriptPubKey));
     if (fIncludeHex)
         out.pushKV("hex", HexStr(scriptPubKey.begin(), scriptPubKey.end()));
 
-    if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired)) {
+    if (!ExtractDestinations(scriptPubKey, type, dests, nRequired)) {
         out.pushKV("type", GetTxnOutputType(type));
         return;
     }
@@ -141,8 +142,8 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
     out.pushKV("type", GetTxnOutputType(type));
 
     UniValue a(UniValue::VARR);
-    BOOST_FOREACH(const CTxDestination& addr, addresses)
-        a.push_back(CBitcoinAddress(addr).ToString());
+    BOOST_FOREACH(const CTxDestination& dest, dests)
+        a.push_back(dest.GetBase58addressWithNetworkPrefix().c_str());
     out.pushKV("addresses", a);
 }
 
