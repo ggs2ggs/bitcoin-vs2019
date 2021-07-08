@@ -207,7 +207,11 @@ UniValue validateaddress(const JSONRPCRequest& request)
         if (pwalletMain && pwalletMain->mapAddressBook.count(dest))
             ret.push_back(Pair("account", pwalletMain->mapAddressBook[dest].name));
         CKeyID keyID;
-        if (pwalletMain && address.GetKeyID(keyID) && pwalletMain->mapKeyMetadata.count(keyID) && !pwalletMain->mapKeyMetadata[keyID].hdKeypath.empty())
+        if (pwalletMain
+            && address.GetKeyID(keyID)
+            && pwalletMain->mapKeyMetadata.count(keyID)
+            && !pwalletMain->mapKeyMetadata[keyID].hdKeypath.empty()
+        )
         {
             ret.push_back(Pair("hdkeypath", pwalletMain->mapKeyMetadata[keyID].hdKeypath));
             ret.push_back(Pair("hdmasterkeyid", pwalletMain->mapKeyMetadata[keyID].m_hdMasterKeyID.GetHex()));

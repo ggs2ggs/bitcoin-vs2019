@@ -58,6 +58,7 @@ CTxDestination CBitcoinAddress::Get() const
 }
 
 // ####### これも CKeyID に移行する候補.
+/*
 bool CBitcoinAddress::GetKeyID(CKeyID& keyID) const
 {
     if (!IsValid() || m_data.m_vchVersion != Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
@@ -67,6 +68,7 @@ bool CBitcoinAddress::GetKeyID(CKeyID& keyID) const
     keyID = CKeyID(id);
     return true;
 }
+*/
 
 bool CBitcoinAddress::IsScript() const
 {

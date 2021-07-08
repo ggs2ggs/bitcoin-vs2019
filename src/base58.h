@@ -81,7 +81,7 @@ protected:
     std::vector<unsigned char> m_vchVersion;
 
     //! the actually encoded data
-    VectorUchar m_vchData;
+    VectorUchar                m_vchData;
 
 public: // ### 仮.
     CBase58Data();
